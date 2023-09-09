@@ -69,16 +69,20 @@ const Home = function () {
     }
 
     setError("Loading...");
+
+    const body = new FormData();
+    body.append("query", url);
     try {
-      const response = await fetch(url, {
-        method: "GET",
+      const response = await fetch("/api/query", {
+        method: "POST",
+        body,
       });
       if (!response.ok) {
         throw "The URL did not provide a JSON object in response.";
       }
       const json = await response.json();
-      setOriginalResponse(JSON.stringify(json, null, 2));
-      setProcessedResponse(JSON.stringify(deepCopyWithCount(json), null, 2));
+      setOriginalResponse(JSON.stringify(json.original, null, 2));
+      setProcessedResponse(JSON.stringify(json.processed, null, 2));
       setError("");
     } catch (err) {
       setError(err as string);

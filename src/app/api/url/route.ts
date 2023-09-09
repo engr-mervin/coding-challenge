@@ -11,22 +11,37 @@ const supabase = createClient(
   }
 );
 
-export async function GET(req: NextRequest) {
-  const { data, error } = await supabase.from("challenge").select();
-  console.log(data);
+export async function GET() {
+  try {
+    const { data, error } = await supabase.from("challenge").select();
+    console.log(data);
 
-  return NextResponse.json({ message: "ok", status: 200, data });
+    if (error) {
+      throw error;
+    }
+    return NextResponse.json({ message: "ok", status: 200, data });
+  } catch (error) {
+    return NextResponse.json({ message: "fail", status: 500, error });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const data = await req.formData();
+  try {
+    const data = await req.formData();
 
-  const url = data.get("url");
+    const url = data.get("url");
 
-  const { error } = await supabase
-    .from("challenge")
-    .update({ url })
-    .eq("id", 1);
+    const { error } = await supabase
+      .from("challenge")
+      .update({ url })
+      .eq("id", 1);
 
-  return NextResponse.json({ message: "ok", status: 201 });
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({ message: "ok", status: 201 });
+  } catch (error) {
+    return NextResponse.json({ message: "fail", status: 500, error });
+  }
 }
