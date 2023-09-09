@@ -1,0 +1,95 @@
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+}
+
+body {
+  font-size: 1.6rem;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  padding: 5vw;
+  overflow-x: hidden;
+}
+
+.response-box {
+  display: grid;
+  grid-template-columns: 43vw 43vw;
+  column-gap: 4vw;
+}
+
+.response-text {
+  overflow-x: scroll;
+  background-color: #f8f8f8;
+  font-size: 1.3rem;
+  font-weight: 300;
+  font-family: inherit;
+  padding: 3rem;
+}
+
+.title {
+  font-size: 3.6rem;
+  text-transform: uppercase;
+  font-weight: 300;
+  letter-spacing: 2px;
+  display: block;
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.form {
+  display: flex;
+  width: 100%;
+  margin-bottom: 4rem;
+  padding: 0 35rem;
+  align-items: stretch;
+}
+
+.input--url {
+  flex: 1;
+  font-size: 1.8rem;
+  font-family: inherit;
+  margin-left: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1.5px solid #555;
+}
+
+.button--url {
+  font-size: 1.8rem;
+  font-family: inherit;
+  padding: 1rem 2rem;
+  margin-left: 1rem;
+  border-radius: 1rem;
+  border: 1.5px solid #555;
+  background-color: #ffbd03;
+  cursor: pointer;
+}
+.label--url {
+  font-size: 1.8rem;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-text {
+  color: red;
+  margin-bottom: 2rem;
+}
+
+.subtitle {
+  font-size: 2.2rem;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

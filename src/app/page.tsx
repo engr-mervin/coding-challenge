@@ -3,98 +3,125 @@ import { useState, useEffect } from "react";
 import { deepCopyWithCount } from "../../util/process-json";
 import { URL_SAVE_DELAY } from "../../util/constants";
 
-const placeholderOrig = JSON.stringify(
-  {
-    found: 1,
-    totalNumPages: 1,
-    pageNum: 1,
-    results: [
-      {
-        SEARCHVAL: "640 ROWELL ROAD SINGAPORE 200640",
-        BLK_NO: "640",
-        ROAD_NAME: "ROWELL ROAD",
-        BUILDING: "NIL",
-        ADDRESS: "640 ROWELL ROAD SINGAPORE 200640",
-        POSTAL: "200640",
-        X: "30381.1007417506",
-        Y: "32195.1006872542",
-        LATITUDE: "1.30743547948389",
-        LONGITUDE: "103.854713903431",
-      },
-    ],
-  },
-  null,
-  2
-);
-
-const placeholderProcessed = JSON.stringify(
-  {
-    objectCount: 4,
-    uonfd: 1,
-    uttsomlgeaaPN: 1,
-    upmgeaN: 1,
-    utssrle: [
-      {
-        objectCount: 10,
-        VSRLHECAA: "WSRRRPOOONLLIGEEDAA664420000    ",
-        _ONLKB: "640",
-        _RONMEDAA: "WRROOLLEDA ",
-        UNLIIGDB: "NLI",
-        SSREDDA: "WSRRRPOOONLLIGEEDAA664420000    ",
-        TSPOLA: "642000",
-        X: "877654331110000.",
-        Y: "987655432221100.",
-        UTTLIEDA: "998877544433310.",
-        UTONLIGED: "987544333311100.",
-      },
-    ],
-  },
-  null,
-  2
-);
-
 const Home = function () {
   const [originalResponse, setOriginalResponse] = useState<string>("");
   const [processedResponse, setProcessedResponse] = useState<string>("");
   const [url, setUrl] = useState<string>("");
+  const [disabled, setDisabled] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
-  const saveToDatabase = async function () {};
+  const getUrl = async function () {
+    setDisabled(true);
+    try {
+      const response = await fetch("/api/url");
+      const body = await response.json();
+      setUrl(body.data[0].url);
+    } catch (err) {
+      setError(err as string);
+    } finally {
+      setDisabled(false);
+    }
+  };
+
+  const saveUrl = async function () {
+    try {
+      const body = new FormData();
+      body.append("url", url);
+      await fetch("/api/url", {
+        method: "POST",
+        body,
+      });
+    } catch (err) {
+      setError(err as string);
+    }
+  };
+
   useEffect(() => {
-    const saveRequest = setTimeout(saveToDatabase, URL_SAVE_DELAY);
+    getUrl();
+  }, []);
 
-    return clearTimeout(saveRequest);
-  });
+  useEffect(() => {
+    if (url === "") return;
+    const saveRequest = setTimeout(() => {
+      saveUrl();
+    }, URL_SAVE_DELAY);
+
+    return () => {
+      clearTimeout(saveRequest);
+    };
+  }, [url]);
 
   const urlChangeHandler = function (e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     setUrl(e.target.value);
   };
+
   const getOriginalResponse = async function (
     e: React.FormEvent<HTMLFormElement>
   ) {
     e.preventDefault();
 
-    const response = await fetch(url, {
-      method: "GET",
-    });
-    if (!response.ok) return;
-    const json = await response.json();
+    setOriginalResponse("");
+    setProcessedResponse("");
+    if (url === "") {
+      setError("Please input a valid URL.");
+      return;
+    }
 
-    setOriginalResponse(JSON.stringify(json, null, 2));
-    setProcessedResponse(JSON.stringify(deepCopyWithCount(json), null, 2));
+    setError("Loading...");
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+      });
+      if (!response.ok) {
+        throw "The URL did not provide a JSON object in response.";
+      }
+      const json = await response.json();
+      setOriginalResponse(JSON.stringify(json, null, 2));
+      setProcessedResponse(JSON.stringify(deepCopyWithCount(json), null, 2));
+      setError("");
+    } catch (err) {
+      setError(err as string);
+    }
   };
+
   return (
     <>
-      <h1>Coding Challenge</h1>
-      <form onSubmit={getOriginalResponse}>
-        <label htmlFor="input--url">URL:</label>
-        <input type="text" id="input--url" onChange={urlChangeHandler} />
-        <button type="submit">Query</button>
+      <h1 className="title">Coding Challenge</h1>
+      <form className="form" onSubmit={getOriginalResponse}>
+        <label className="label--url" htmlFor="input--url">
+          URL:
+        </label>
+        <input
+          className="input--url"
+          type="text"
+          id="input--url"
+          onChange={urlChangeHandler}
+          value={url}
+          disabled={disabled}
+        />
+        <button className="button--url" type="submit">
+          Query
+        </button>
       </form>
-
-      <div>
-        <pre>{originalResponse}</pre>
-        <pre>{processedResponse}</pre>
+      <p className="error-text">{error}</p>
+      <div className="response-box">
+        {originalResponse ? (
+          <div className="response-group">
+            <h2 className="subtitle">URL Response</h2>
+            <pre className="response-text">{originalResponse}</pre>
+          </div>
+        ) : (
+          ""
+        )}
+        {processedResponse ? (
+          <div className="response-group">
+            <h2 className="subtitle">Processed URL Response</h2>
+            <pre className="response-text">{processedResponse}</pre>
+          </div>
+        ) : (
+          ""
+        )}
       </div>
     </>
   );
