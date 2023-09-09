@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { deepCopyWithCount } from "../../util/process-json";
 
 const placeholderOrig = JSON.stringify(
   {
@@ -54,18 +55,38 @@ const placeholderProcessed = JSON.stringify(
 const Home = function () {
   const [originalResponse, setOriginalResponse] = useState<string>("");
   const [processedResponse, setProcessedResponse] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
+
+  const getOriginalResponse = async function (
+    e: React.FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault();
+
+    const response = await fetch(url, {
+      method: "GET",
+    });
+    if (!response.ok) return;
+    const json = await response.json();
+
+    setOriginalResponse(JSON.stringify(json, null, 2));
+    setProcessedResponse(JSON.stringify(deepCopyWithCount(json), null, 2));
+  };
   return (
     <>
       <h1>Coding Challenge</h1>
-      <form>
+      <form onSubmit={getOriginalResponse}>
         <label htmlFor="input--url">URL:</label>
-        <input type="text" id="input--url" />
+        <input
+          type="text"
+          id="input--url"
+          onChange={(e) => setUrl(e.target.value)}
+        />
         <button type="submit">Query</button>
       </form>
 
       <div>
-        <pre>{placeholderOrig}</pre>
-        <pre>{placeholderProcessed}</pre>
+        <pre>{originalResponse}</pre>
+        <pre>{processedResponse}</pre>
       </div>
     </>
   );
