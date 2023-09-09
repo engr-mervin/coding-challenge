@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { deepCopyWithCount } from "../../util/process-json";
+import { URL_SAVE_DELAY } from "../../util/constants";
 
 const placeholderOrig = JSON.stringify(
   {
@@ -57,6 +58,17 @@ const Home = function () {
   const [processedResponse, setProcessedResponse] = useState<string>("");
   const [url, setUrl] = useState<string>("");
 
+  const saveToDatabase = async function () {};
+  useEffect(() => {
+    const saveRequest = setTimeout(saveToDatabase, URL_SAVE_DELAY);
+
+    return clearTimeout(saveRequest);
+  });
+
+  const urlChangeHandler = function (e: React.ChangeEvent<HTMLInputElement>) {
+    e.preventDefault();
+    setUrl(e.target.value);
+  };
   const getOriginalResponse = async function (
     e: React.FormEvent<HTMLFormElement>
   ) {
@@ -76,11 +88,7 @@ const Home = function () {
       <h1>Coding Challenge</h1>
       <form onSubmit={getOriginalResponse}>
         <label htmlFor="input--url">URL:</label>
-        <input
-          type="text"
-          id="input--url"
-          onChange={(e) => setUrl(e.target.value)}
-        />
+        <input type="text" id="input--url" onChange={urlChangeHandler} />
         <button type="submit">Query</button>
       </form>
 
