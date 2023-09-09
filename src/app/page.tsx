@@ -41,7 +41,6 @@ const Home = function () {
   }, []);
 
   useEffect(() => {
-    if (url === "") return;
     const saveRequest = setTimeout(() => {
       saveUrl();
     }, URL_SAVE_DELAY);
@@ -77,10 +76,10 @@ const Home = function () {
         method: "POST",
         body,
       });
-      if (!response.ok) {
+      const json = await response.json();
+      if (json.message !== "ok") {
         throw "The URL did not provide a JSON object in response.";
       }
-      const json = await response.json();
       setOriginalResponse(JSON.stringify(json.original, null, 2));
       setProcessedResponse(JSON.stringify(json.processed, null, 2));
       setError("");
